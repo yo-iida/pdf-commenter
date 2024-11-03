@@ -45,7 +45,18 @@ export default function CommentList({ comments, pageOffset = 0 }: CommentListPro
         {copied ? 'Copied!' : 'Copy All'}
       </button>
       <div className="markdown-preview">
-        <ReactMarkdown>{markdownComments}</ReactMarkdown>
+        <ReactMarkdown
+          components={{
+            h2: ({ children }) => (
+              <h2 className="text-xl font-semibold text-gray-800 mt-6 mb-3">{children}</h2>
+            ),
+            p: ({ children }) => (
+              <p className="text-gray-600 mb-4 leading-relaxed">{children}</p>
+            ),
+          }}
+        >
+          {markdownComments}
+        </ReactMarkdown>
       </div>
     </div>
   )
