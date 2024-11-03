@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/esm/Page/TextLayer.css'
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css'
+import { PDFPagination } from './components/PDFPagination'
 
 interface PDFViewerProps {
   file: File
@@ -39,6 +40,11 @@ export default function PDFViewer({ file, onTextSelection }: PDFViewerProps) {
 
   return (
     <div className="pdf-viewer">
+      <PDFPagination 
+        pageNumber={pageNumber}
+        numPages={numPages}
+        onPageChange={setPageNumber}
+      />
       <Document
         file={pdfUrl}
         onLoadSuccess={onDocumentLoadSuccess}
@@ -53,25 +59,11 @@ export default function PDFViewer({ file, onTextSelection }: PDFViewerProps) {
           renderAnnotationLayer={true}
         />
       </Document>
-      <div className="pdf-controls mt-4">
-        <p className="mb-2">
-          Page {pageNumber} of {numPages}
-        </p>
-        <button
-          onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}
-          disabled={pageNumber <= 1}
-          className="bg-blue-500 text-white px-4 py-2 rounded mr-2 disabled:bg-gray-300"
-        >
-          Previous
-        </button>
-        <button
-          onClick={() => setPageNumber((prev) => Math.min(prev + 1, numPages || Infinity))}
-          disabled={pageNumber >= (numPages || 0)}
-          className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-300"
-        >
-          Next
-        </button>
-      </div>
+      <PDFPagination 
+        pageNumber={pageNumber}
+        numPages={numPages}
+        onPageChange={setPageNumber}
+      />
     </div>
   )
 }
