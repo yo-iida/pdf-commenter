@@ -6,7 +6,7 @@ import { PDFPagination } from './components/PDFPagination'
 
 interface PDFViewerProps {
   file: File
-  onTextSelection: (text: string, pageNumber: number) => void
+  onTextSelection: (text: string, pageNumber: number, position: { x: number; y: number }) => void
 }
 
 export default function PDFViewer({ file, onTextSelection }: PDFViewerProps) {
@@ -34,7 +34,7 @@ export default function PDFViewer({ file, onTextSelection }: PDFViewerProps) {
   function handleTextSelection() {
     const selection = window.getSelection()
     if (selection && selection.toString().trim() !== '') {
-      onTextSelection(selection.toString(), pageNumber)
+      onTextSelection(selection.toString(), pageNumber, { x: 0, y: 0 })
     }
   }
 
