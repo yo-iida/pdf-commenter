@@ -57,6 +57,7 @@ export default function PDFViewer({ file, onTextSelection }: PDFViewerProps) {
           onMouseUp={handleTextSelection}
           renderTextLayer={true}
           renderAnnotationLayer={true}
+          width={850}
         />
       </Document>
       <PDFPagination 
