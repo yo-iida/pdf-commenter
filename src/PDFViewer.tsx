@@ -11,10 +11,20 @@ interface PDFViewerProps {
 export default function PDFViewer({ file, onTextSelection }: PDFViewerProps) {
   const [numPages, setNumPages] = useState<number | null>(null)
   const [pageNumber, setPageNumber] = useState(1)
+  const [pdfUrl, setPdfUrl] = useState<string>('')
 
   useEffect(() => {
     pdfjs.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs'
   }, [])
+
+  useEffect(() => {
+    // Create a URL for the file
+    const url = URL.createObjectURL(file)
+    setPdfUrl(url)
+    
+    // Cleanup URL when component unmounts
+    return () => URL.revokeObjectURL(url)
+  }, [file])
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages)
@@ -29,9 +39,15 @@ export default function PDFViewer({ file, onTextSelection }: PDFViewerProps) {
 
   return (
     <div className="pdf-viewer">
-      <Document file={file} onLoadSuccess={onDocumentLoadSuccess}>
-        <Page 
-          pageNumber={pageNumber} 
+      <Document
+        file={pdfUrl}
+        onLoadSuccess={onDocumentLoadSuccess}
+        options={{
+          cMapUrl: "https://unpkg.com/pdfjs-dist@4.4.168/cmaps/",
+          cMapPacked: true,
+        }}>
+        <Page
+          pageNumber={pageNumber}
           onMouseUp={handleTextSelection}
           renderTextLayer={true}
           renderAnnotationLayer={true}
