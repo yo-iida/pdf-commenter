@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/esm/Page/TextLayer.css'
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css'
@@ -9,7 +9,7 @@ interface PDFViewerProps {
   onTextSelection: (text: string, pageNumber: number, position: { x: number; y: number }) => void
 }
 
-export default function PDFViewer({ file, onTextSelection }: PDFViewerProps) {
+const PDFViewer = React.memo(({ file, onTextSelection }: PDFViewerProps) => {
   const [numPages, setNumPages] = useState<number | null>(null)
   const [pageNumber, setPageNumber] = useState(1)
   const [pdfUrl, setPdfUrl] = useState<string>('')
@@ -66,4 +66,6 @@ export default function PDFViewer({ file, onTextSelection }: PDFViewerProps) {
       </div>
     </div>
   )
-}
+})
+
+export default PDFViewer

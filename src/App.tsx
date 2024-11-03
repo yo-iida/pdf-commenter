@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import PDFUploader from './PDFUploader'
 import PDFViewer from './PDFViewer'
 import CommentList from './CommentList'
@@ -30,9 +30,9 @@ export default function App() {
     setPdfFile(file)
   }
 
-  const handleTextSelection = (text: string, pageNumber: number, position: { x: number; y: number }) => {
-    setSelectedText({ text, pageNumber, position })
-  }
+  const handleTextSelection = useCallback((text: string, pageNumber: number, position: { x: number; y: number }) => {
+    setSelectedText({ text, pageNumber, position });
+  }, []);
 
   const handleCommentSave = (comment: string) => {
     if (selectedText) {
@@ -49,7 +49,10 @@ export default function App() {
       ) : (
         <div className="flex flex-row h-[calc(100vh-8rem)]">
           <div className="w-2/3 overflow-auto pr-4 relative" id="pdf-container">
-            <PDFViewer file={pdfFile} onTextSelection={handleTextSelection} />
+            <PDFViewer 
+              file={pdfFile} 
+              onTextSelection={handleTextSelection}
+            />
           </div>
           <div className="w-1/3 overflow-auto border-l border-gray-200 pl-4">
             <CommentList comments={comments} selectedText={selectedText} onSave={handleCommentSave} />
