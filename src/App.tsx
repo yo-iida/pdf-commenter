@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react'
 import PDFUploader from './PDFUploader'
 import PDFViewer from './PDFViewer'
-import CommentUI from './CommentUI'
 import CommentList from './CommentList'
 import './globals.css'
 
@@ -51,20 +50,9 @@ export default function App() {
         <div className="flex flex-row h-[calc(100vh-8rem)]">
           <div className="w-2/3 overflow-auto pr-4 relative" id="pdf-container">
             <PDFViewer file={pdfFile} onTextSelection={handleTextSelection} />
-            {selectedText && selectedText.position && (
-              <div 
-                className="absolute"
-                style={{ 
-                  top: `${selectedText.position.y + (document.getElementById('pdf-container')?.scrollTop ?? 0)}px`,
-                  left: `${selectedText.position.x}px`
-                }}
-              >
-                <CommentUI onSave={handleCommentSave} />
-              </div>
-            )}
           </div>
           <div className="w-1/3 overflow-auto border-l border-gray-200 pl-4">
-            <CommentList comments={comments} />
+            <CommentList comments={comments} selectedText={selectedText} onSave={handleCommentSave} />
           </div>
         </div>
       )}

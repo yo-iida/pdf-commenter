@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
+import CommentUI from './CommentUI'
 
 interface Comment {
   text: string
@@ -10,9 +11,15 @@ interface Comment {
 interface CommentListProps {
   comments: Comment[]
   pageOffset?: number
+  selectedText: {
+    text: string;
+    pageNumber: number;
+    position?: { x: number; y: number };
+  } | null;
+  onSave: (comment: string) => void;
 }
 
-export default function CommentList({ comments, pageOffset = 0 }: CommentListProps) {
+export default function CommentList({ comments, pageOffset = 0, selectedText, onSave }: CommentListProps) {
   const [copied, setCopied] = useState(false)
   const [localPageOffset, setLocalPageOffset] = useState(pageOffset)
 
@@ -28,6 +35,8 @@ export default function CommentList({ comments, pageOffset = 0 }: CommentListPro
 
   return (
     <div>
+      <p>Selected Text: {selectedText && selectedText.text}</p>
+      <CommentUI onSave={onSave} />
       <div className="mb-4">
         <label htmlFor="pageOffset" className="block text-sm font-medium text-gray-700">
           Page Offset:
