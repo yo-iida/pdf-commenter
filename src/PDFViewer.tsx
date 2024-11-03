@@ -39,32 +39,31 @@ export default function PDFViewer({ file, onTextSelection }: PDFViewerProps) {
   }
 
   return (
-    <div className="pdf-viewer">
-      <PDFPagination 
-        pageNumber={pageNumber}
-        numPages={numPages}
-        onPageChange={setPageNumber}
-      />
-      <Document
-        file={pdfUrl}
-        onLoadSuccess={onDocumentLoadSuccess}
-        options={{
-          cMapUrl: "https://unpkg.com/pdfjs-dist@4.4.168/cmaps/",
-          cMapPacked: true,
-        }}>
-        <Page
+    <div className="pdf-viewer" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div style={{ flexShrink: 0 }}>
+        <PDFPagination 
           pageNumber={pageNumber}
-          onMouseUp={handleTextSelection}
-          renderTextLayer={true}
-          renderAnnotationLayer={true}
-          width={850}
+          numPages={numPages}
+          onPageChange={setPageNumber}
         />
-      </Document>
-      <PDFPagination 
-        pageNumber={pageNumber}
-        numPages={numPages}
-        onPageChange={setPageNumber}
-      />
+      </div>
+      <div style={{ flex: 1, overflow: 'auto' }}>
+        <Document
+          file={pdfUrl}
+          onLoadSuccess={onDocumentLoadSuccess}
+          options={{
+            cMapUrl: "https://unpkg.com/pdfjs-dist@4.4.168/cmaps/",
+            cMapPacked: true,
+          }}>
+          <Page
+            pageNumber={pageNumber}
+            onMouseUp={handleTextSelection}
+            renderTextLayer={true}
+            renderAnnotationLayer={true}
+            width={850}
+          />
+        </Document>
+      </div>
     </div>
   )
 }
