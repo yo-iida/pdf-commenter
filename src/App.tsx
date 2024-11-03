@@ -5,6 +5,7 @@ import PDFUploader from './PDFUploader'
 import PDFViewer from './PDFViewer'
 import CommentUI from './CommentUI'
 import CommentList from './CommentList'
+import './globals.css'
 
 export default function App() {
   const [pdfFile, setPdfFile] = useState<File | null>(null)
@@ -38,17 +39,19 @@ export default function App() {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 h-screen">
       <h1 className="text-2xl font-bold mb-4">PDF Review App</h1>
       {!pdfFile ? (
         <PDFUploader onUpload={handlePdfUpload} />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
+        <div className="flex flex-row h-[calc(100vh-8rem)]">
+          <div className="w-2/3 overflow-auto pr-4">
             <PDFViewer file={pdfFile} onTextSelection={handleTextSelection} />
             {selectedText && <CommentUI onSave={handleCommentSave} />}
           </div>
-          <CommentList comments={comments} />
+          <div className="w-1/3 overflow-auto border-l border-gray-200 pl-4">
+            <CommentList comments={comments} />
+          </div>
         </div>
       )}
     </div>
