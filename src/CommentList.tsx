@@ -24,7 +24,7 @@ export default function CommentList({ comments, pageOffset = 0, selectedText, on
   const [localPageOffset, setLocalPageOffset] = useState(pageOffset)
 
   const markdownComments = comments
-    .map((comment) => `## ${comment.text} (Page ${comment.pageNumber - localPageOffset})\n\n${comment.content}\n`)
+    .map((comment) => `## ${comment.text} (p.${comment.pageNumber - localPageOffset})\n\n${comment.content}\n`)
     .join('\n')
 
   const handleCopyAll = () => {
