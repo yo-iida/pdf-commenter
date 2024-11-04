@@ -31,7 +31,8 @@ export default function App() {
   }
 
   const handleTextSelection = useCallback((text: string, pageNumber: number, position: { x: number; y: number }) => {
-    setSelectedText({ text, pageNumber, position });
+    const cleanText = text.replace(/\n/g, ' ').trim();
+    setSelectedText({ text: cleanText, pageNumber, position });
   }, []);
 
   const handleCommentSave = (comment: string) => {
@@ -43,6 +44,10 @@ export default function App() {
 
   const handleClear = () => {
     setComments([]);
+  };
+
+  const handleDeleteComment = (index: number) => {
+    setComments(comments.filter((_, i) => i !== index));
   };
 
   return (
@@ -63,7 +68,8 @@ export default function App() {
               comments={comments} 
               selectedText={selectedText} 
               onSave={handleCommentSave}
-              onClear={handleClear} 
+              onClear={handleClear}
+              onDeleteComment={handleDeleteComment}
             />
           </div>
         </div>

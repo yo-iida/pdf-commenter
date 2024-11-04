@@ -18,18 +18,22 @@ interface CommentListProps {
   } | null;
   onSave: (comment: string) => void;
   onClear: () => void;
+  onDeleteComment: (index: number) => void;
 }
 
-export default function CommentList({ comments, pageOffset = 0, selectedText, onSave, onClear }: CommentListProps) {
+export default function CommentList({ comments, pageOffset = 0, selectedText, onSave, onClear, onDeleteComment }: CommentListProps) {
   const [copied, setCopied] = useState(false)
   const [localPageOffset, setLocalPageOffset] = useState(pageOffset)
 
-  const markdownComments = comments
-    .map((comment) => `## ${comment.text} (p.${comment.pageNumber - localPageOffset})\n\n${comment.content}\n`)
-    .join('\n')
+  const renderComments = comments.map((comment, index) => `## ${comment.text} (p.${comment.pageNumber - localPageOffset})
+
+${comment.content}
+
+[Delete](#${index})
+`).join('\n\n')
 
   const handleCopyAll = () => {
-    navigator.clipboard.writeText(markdownComments)
+    navigator.clipboard.writeText(renderComments)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -68,9 +72,20 @@ export default function CommentList({ comments, pageOffset = 0, selectedText, on
             p: ({ children }) => (
               <p className="text-gray-600 mb-4 leading-relaxed">{children}</p>
             ),
+            a: ({ href, children }) => {
+              const index = href?.replace('#', '');
+              return (
+                <button
+                  onClick={() => onDeleteComment(parseInt(index || "0"))}
+                  className="text-red-500 hover:text-red-700 text-sm"
+                >
+                  {children}
+                </button>
+              );
+            }
           }}
         >
-          {markdownComments}
+          {renderComments}
         </ReactMarkdown>
       </div>
     </div>
