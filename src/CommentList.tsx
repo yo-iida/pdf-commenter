@@ -17,9 +17,10 @@ interface CommentListProps {
     position?: { x: number; y: number };
   } | null;
   onSave: (comment: string) => void;
+  onClear: () => void;
 }
 
-export default function CommentList({ comments, pageOffset = 0, selectedText, onSave }: CommentListProps) {
+export default function CommentList({ comments, pageOffset = 0, selectedText, onSave, onClear }: CommentListProps) {
   const [copied, setCopied] = useState(false)
   const [localPageOffset, setLocalPageOffset] = useState(pageOffset)
 
@@ -50,9 +51,14 @@ export default function CommentList({ comments, pageOffset = 0, selectedText, on
         />
       </div>
       <h2 className="text-xl font-bold mb-4">Comments</h2>
-      <button onClick={handleCopyAll} className="mb-4 bg-blue-500 text-white px-4 py-2 rounded">
-        {copied ? 'Copied!' : 'Copy All'}
-      </button>
+      <div className="flex gap-2 mb-4">
+        <button onClick={handleCopyAll} className="bg-blue-500 text-white px-4 py-2 rounded">
+          {copied ? 'Copied!' : 'Copy All'}
+        </button>
+        <button onClick={onClear} className="bg-red-500 text-white px-4 py-2 rounded">
+          Clear All
+        </button>
+      </div>
       <div className="markdown-preview">
         <ReactMarkdown
           components={{

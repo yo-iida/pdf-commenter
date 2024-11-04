@@ -41,6 +41,10 @@ export default function App() {
     }
   }
 
+  const handleClear = () => {
+    setComments([]);
+  };
+
   return (
     <div className="container mx-auto p-4 h-screen">
       <h1 className="text-2xl font-bold mb-4">PDF Review App</h1>
@@ -55,7 +59,12 @@ export default function App() {
             />
           </div>
           <div className="w-1/3 overflow-auto border-l border-gray-200 pl-4">
-            <CommentList comments={comments} selectedText={selectedText} onSave={handleCommentSave} />
+            <CommentList 
+              comments={comments} 
+              selectedText={selectedText} 
+              onSave={handleCommentSave}
+              onClear={handleClear} 
+            />
           </div>
         </div>
       )}
