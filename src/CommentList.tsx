@@ -32,8 +32,12 @@ ${comment.content}
 [Delete](#${index})
 `).join('\n\n')
 
+  const renderCommentsForCopy = comments.map((comment) => `## ${comment.text} (p.${comment.pageNumber - localPageOffset})
+
+${comment.content}`).join('\n\n')
+
   const handleCopyAll = () => {
-    navigator.clipboard.writeText(renderComments)
+    navigator.clipboard.writeText(renderCommentsForCopy)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
