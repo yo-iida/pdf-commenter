@@ -1,29 +1,59 @@
+import React, { useState } from 'react'
+
 interface PDFPaginationProps {
-  pageNumber: number;
-  numPages: number | null;
-  onPageChange: (newPage: number) => void;
+  pageNumber: number
+  numPages: number | null
+  onPageChange: (page: number) => void
+  onPageJump: (page: number) => void
 }
 
-export function PDFPagination({ pageNumber, numPages, onPageChange }: PDFPaginationProps) {
+export const PDFPagination: React.FC<PDFPaginationProps> = ({
+  pageNumber,
+  numPages,
+  onPageChange,
+  onPageJump
+}) => {
+  const [jumpInput, setJumpInput] = useState('')
+
+  const handleJumpSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const targetPage = parseInt(jumpInput)
+    if (!isNaN(targetPage) && targetPage >= 1 && targetPage <= (numPages || 1)) {
+      onPageJump(targetPage)
+      setJumpInput('')
+    }
+  }
+
   return (
-    <div className="pdf-controls mt-4 flex items-center gap-4">
+    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.5rem' }}>
       <button
-        onClick={() => onPageChange(Math.max(pageNumber - 1, 1))}
+        onClick={() => onPageChange(pageNumber - 1)}
         disabled={pageNumber <= 1}
-        className="text-blue-500 hover:text-blue-700 disabled:text-gray-300 font-medium"
       >
         Previous
       </button>
-      <p>
+      
+      <form onSubmit={handleJumpSubmit} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <input
+          type="text"
+          value={jumpInput}
+          onChange={(e) => setJumpInput(e.target.value)}
+          placeholder="Jump to page"
+          style={{ width: '80px', padding: '0.25rem' }}
+        />
+        <button type="submit">Go</button>
+      </form>
+
+      <span>
         Page {pageNumber} of {numPages}
-      </p>
+      </span>
+      
       <button
-        onClick={() => onPageChange(Math.min(pageNumber + 1, numPages || Infinity))}
-        disabled={pageNumber >= (numPages || 0)}
-        className="text-blue-500 hover:text-blue-700 disabled:text-gray-300 font-medium"
+        onClick={() => onPageChange(pageNumber + 1)}
+        disabled={!numPages || pageNumber >= numPages}
       >
         Next
       </button>
     </div>
-  );
+  )
 } 

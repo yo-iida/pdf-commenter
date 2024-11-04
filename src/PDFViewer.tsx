@@ -38,6 +38,12 @@ const PDFViewer = React.memo(({ file, onTextSelection }: PDFViewerProps) => {
     }
   }
 
+  const handlePageJump = (targetPage: number) => {
+    if (targetPage >= 1 && targetPage <= (numPages || 1)) {
+      setPageNumber(targetPage)
+    }
+  }
+
   return (
     <div className="pdf-viewer" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ flexShrink: 0 }}>
@@ -45,6 +51,7 @@ const PDFViewer = React.memo(({ file, onTextSelection }: PDFViewerProps) => {
           pageNumber={pageNumber}
           numPages={numPages}
           onPageChange={setPageNumber}
+          onPageJump={handlePageJump}
         />
       </div>
       <div style={{ flex: 1, overflow: 'auto' }}>
