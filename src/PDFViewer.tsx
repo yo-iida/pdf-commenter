@@ -46,6 +46,11 @@ const PDFViewer = React.memo(({ file, onTextSelection }: PDFViewerProps) => {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      if (activeElement && activeElement.tagName.toLowerCase() === 'textarea') {
+        return; // Do nothing if a textarea is focused
+      }
+
       if (event.key === 'ArrowRight') {
         handlePageJump(pageNumber + 1)
       } else if (event.key === 'ArrowLeft') {
