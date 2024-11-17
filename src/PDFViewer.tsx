@@ -44,6 +44,22 @@ const PDFViewer = React.memo(({ file, onTextSelection }: PDFViewerProps) => {
     }
   }
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowRight') {
+        handlePageJump(pageNumber + 1)
+      } else if (event.key === 'ArrowLeft') {
+        handlePageJump(pageNumber - 1)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [pageNumber, numPages])
+
   return (
     <div className="pdf-viewer" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ flexShrink: 0 }}>
