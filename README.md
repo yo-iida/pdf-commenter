@@ -25,5 +25,49 @@ A React-based web application for reviewing PDF documents and adding comments to
 
 ## Getting Started
 
-1. Clone the repository
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/pdf-commenter.git
+   cd pdf-commenter
+   ```
+
 2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+### Running the Application
+
+1. Start the development server:
+   ```bash
+   npm start
+   # or
+   yarn start
+   ```
+
+2. Open your browser and navigate to:
+   ```
+   http://localhost:3000
+   ```
+
+The application will automatically reload if you make changes to the code.
+
+### Building for Production
+
+To create a production build:
+```bash
+npm run build
+# or
+yarn build
+```
+
+The build artifacts will be stored in the `build/` directory.
