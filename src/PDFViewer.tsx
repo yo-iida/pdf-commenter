@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/esm/Page/TextLayer.css'
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css'
@@ -38,11 +38,11 @@ const PDFViewer = React.memo(({ file, onTextSelection }: PDFViewerProps) => {
     }
   }
 
-  const handlePageJump = (targetPage: number) => {
+  const handlePageJump = useCallback((targetPage: number) => {
     if (targetPage >= 1 && targetPage <= (numPages || 1)) {
       setPageNumber(targetPage)
     }
-  }
+  }, [numPages])
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -63,7 +63,7 @@ const PDFViewer = React.memo(({ file, onTextSelection }: PDFViewerProps) => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [pageNumber, numPages])
+  }, [pageNumber, numPages, handlePageJump])
 
   return (
     <div className="pdf-viewer" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
