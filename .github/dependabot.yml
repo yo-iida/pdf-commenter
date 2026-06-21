@@ -5,8 +5,13 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    # メジャーバージョン更新は破壊的変更を伴うため自動 PR から除外する
+    # （セキュリティ更新は別経路で引き続き作成される）
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
-      # まとめて 1 つの PR にしてレビューしやすくする
+      # minor/patch をまとめて 1 つの PR にしてレビューしやすくする
       npm-dependencies:
         patterns:
           - "*"
