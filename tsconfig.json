@@ -23,7 +23,7 @@
       "node",
       "vite/client",
       "vitest/globals",
-      "@testing-library/jest-dom"
+      "@testing-library/jest-dom/vitest"
     ]
   },
   "include": [
