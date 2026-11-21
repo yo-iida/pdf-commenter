@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/esm/Page/TextLayer.css'
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css'
@@ -15,6 +15,28 @@ const documentOptions = {
   cMapPacked: true,
 }
 
+/**
+ * Tracks the content width of an element so the page can be rendered to fit it (#42).
+ * Returns 0 until the element has been measured.
+ */
+function useContentWidth<T extends HTMLElement>() {
+  const ref = useRef<T>(null)
+  const [width, setWidth] = useState(0)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const update = () => setWidth(Math.floor(el.clientWidth))
+    update()
+    if (typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(update)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  return [ref, width] as const
+}
+
 interface PDFViewerProps {
   file: File
   onTextSelection: TextSelectionHandler
@@ -24,6 +46,7 @@ const PDFViewer = React.memo(({ file, onTextSelection }: PDFViewerProps) => {
   const [numPages, setNumPages] = useState<number | null>(null)
   const [pageNumber, setPageNumber] = useState(1)
   const [pdfUrl, setPdfUrl] = useState<string>('')
+  const [pageContainerRef, pageWidth] = useContentWidth<HTMLDivElement>()
 
   useEffect(() => {
     // Create a URL for the file
@@ -82,19 +105,23 @@ const PDFViewer = React.memo(({ file, onTextSelection }: PDFViewerProps) => {
           onPageJump={handlePageJump}
         />
       </div>
-      <div style={{ flex: 1, overflow: 'auto' }}>
+      {/* scrollbar-gutter keeps the width stable when a vertical scrollbar appears,
+          so fitting the page to the width cannot oscillate. */}
+      <div ref={pageContainerRef} style={{ flex: 1, overflow: 'auto', scrollbarGutter: 'stable' }}>
         <Document
           file={pdfUrl}
           onLoadSuccess={onDocumentLoadSuccess}
           onLoadError={(error) => console.error('Failed to load PDF:', error)}
           options={documentOptions}>
-          <Page
-            pageNumber={pageNumber}
-            onMouseUp={handleTextSelection}
-            renderTextLayer={true}
-            renderAnnotationLayer={true}
-            width={850}
-          />
+          {pageWidth > 0 && (
+            <Page
+              pageNumber={pageNumber}
+              onMouseUp={handleTextSelection}
+              renderTextLayer={true}
+              renderAnnotationLayer={true}
+              width={pageWidth}
+            />
+          )}
         </Document>
       </div>
     </div>
