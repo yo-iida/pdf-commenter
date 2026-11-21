@@ -3,6 +3,16 @@ import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/esm/Page/TextLayer.css'
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css'
 import { PDFPagination } from './components/PDFPagination'
+// Bundle the worker from the installed pdfjs-dist so its version always matches the
+// API version used by react-pdf (pdf.js refuses to load documents on a mismatch).
+import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
+
+pdfjs.GlobalWorkerOptions.workerSrc = workerSrc
+
+const documentOptions = {
+  cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
+  cMapPacked: true,
+}
 
 interface PDFViewerProps {
   file: File
@@ -13,10 +23,6 @@ const PDFViewer = React.memo(({ file, onTextSelection }: PDFViewerProps) => {
   const [numPages, setNumPages] = useState<number | null>(null)
   const [pageNumber, setPageNumber] = useState(1)
   const [pdfUrl, setPdfUrl] = useState<string>('')
-
-  useEffect(() => {
-    pdfjs.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs'
-  }, [])
 
   useEffect(() => {
     // Create a URL for the file
@@ -79,10 +85,8 @@ const PDFViewer = React.memo(({ file, onTextSelection }: PDFViewerProps) => {
         <Document
           file={pdfUrl}
           onLoadSuccess={onDocumentLoadSuccess}
-          options={{
-            cMapUrl: "https://unpkg.com/pdfjs-dist@4.4.168/cmaps/",
-            cMapPacked: true,
-          }}>
+          onLoadError={(error) => console.error('Failed to load PDF:', error)}
+          options={documentOptions}>
           <Page
             pageNumber={pageNumber}
             onMouseUp={handleTextSelection}
