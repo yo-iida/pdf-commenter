@@ -53,6 +53,7 @@ PDF をレビューし、選択したテキストにコメントを付けるた�
 ### 注意すべき点
 
 - `react-pdf` の pdf.js ワーカーは、`PDFViewer.tsx` で `pdfjs-dist/build/pdf.worker.min.mjs?url` を import して Vite で同梱しています（`react-pdf` が依存する `pdfjs-dist` を使うため、API とワーカーのバージョンが常に一致します。pdf.js はバージョンが違うと PDF の読み込みを拒否します）。cMaps は `pdfjs.version` から組み立てた unpkg CDN の URL から読み込みます。ワーカーの URL をハードコードしないでください。
+- `react-pdf` 11 は既定で Suspense を使います（`Document`/`Page` が読み込み中に中断する）。`PDFViewer` は遅延読み込みの Suspense 境界の内側にあるため、そのままだとページ送りのたびにビューア全体が「Loading PDF viewer…」に置き換わります。これを避けるため `Document` に `suspense={false}` を指定しています。react-pdf 11 の対応ブラウザは Chrome 125 / Safari 18 以上です。
 - 共有する型（`Comment`・`SelectedText`・`TextSelectionHandler`）は `src/types.ts` にまとめています。コンポーネント間で受け渡す型はここに追加し、各ファイルにインラインで重複定義しないでください。
 - スタイリングは Tailwind（`tailwind.config.cjs`、`postcss.config.cjs` で処理）。グローバルスタイルは `src/globals.css` と `src/index.css`。
 - エントリは Vite 規約に従いリポジトリルートの `index.html`（`<script type="module" src="/src/index.tsx">`）。`public/` 配下の静的ファイルはルート（`/favicon.ico` 等）から配信されます。
