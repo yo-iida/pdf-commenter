@@ -16,7 +16,7 @@ interface CommentListProps {
     pageNumber: number;
     position?: { x: number; y: number };
   } | null;
-  onSave: (comment: string) => void;
+  onSave: (comment: string) => boolean;
   onClear: () => void;
   onDeleteComment: (index: number) => void;
 }
@@ -25,14 +25,11 @@ export default function CommentList({ comments, pageOffset = 0, selectedText, on
   const [copied, setCopied] = useState(false)
   const [localPageOffset, setLocalPageOffset] = useState(pageOffset)
 
-  const renderComments = comments.map((comment, index) => `## ${comment.text} (p.${comment.pageNumber - localPageOffset})
+  const pageLabel = (comment: Comment) => `p.${comment.pageNumber - localPageOffset}`
 
-${comment.content}
-
-[Delete](#${index})
-`).join('\n\n')
-
-  const renderCommentsForCopy = comments.map((comment) => `## ${comment.text} (p.${comment.pageNumber - localPageOffset})
+  // Markdown export for "Copy All". The on-screen list is rendered as React
+  // elements below, so Markdown in a comment cannot turn into a Delete button (#38).
+  const renderCommentsForCopy = comments.map((comment) => `## ${comment.text} (${pageLabel(comment)})
 
 ${comment.content}`).join('\n\n')
 
@@ -45,7 +42,7 @@ ${comment.content}`).join('\n\n')
   return (
     <div>
       <p>Selected Text: {selectedText && selectedText.text}</p>
-      <CommentUI onSave={onSave} />
+      <CommentUI onSave={onSave} hasSelection={selectedText !== null} />
       <div className="mb-4">
         <label htmlFor="pageOffset" className="block text-sm font-medium text-gray-700">
           Page Offset:
@@ -67,31 +64,35 @@ ${comment.content}`).join('\n\n')
           Clear All
         </button>
       </div>
-      <div className="markdown-preview">
-        <ReactMarkdown
-          components={{
-            h2: ({ children }) => (
-              <h2 className="text-xl font-semibold text-gray-800 mt-6 mb-3">{children}</h2>
-            ),
-            p: ({ children }) => (
-              <p className="text-gray-600 mb-4 leading-relaxed">{children}</p>
-            ),
-            a: ({ href, children }) => {
-              const index = href?.replace('#', '');
-              return (
-                <button
-                  onClick={() => onDeleteComment(parseInt(index || "0"))}
-                  className="text-red-500 hover:text-red-700 text-sm"
-                >
-                  {children}
-                </button>
-              );
-            }
-          }}
-        >
-          {renderComments}
-        </ReactMarkdown>
-      </div>
+      <ul className="markdown-preview">
+        {comments.map((comment, index) => (
+          <li key={index} data-testid="comment">
+            <h3 className="text-xl font-semibold text-gray-800 mt-6 mb-3">
+              {comment.text} ({pageLabel(comment)})
+            </h3>
+            <ReactMarkdown
+              components={{
+                p: ({ children }) => (
+                  <p className="text-gray-600 mb-4 leading-relaxed">{children}</p>
+                ),
+                a: ({ href, children }) => (
+                  <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                    {children}
+                  </a>
+                ),
+              }}
+            >
+              {comment.content}
+            </ReactMarkdown>
+            <button
+              onClick={() => onDeleteComment(index)}
+              className="text-red-500 hover:text-red-700 text-sm"
+            >
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

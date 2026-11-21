@@ -6,9 +6,26 @@ import PDFViewer from './PDFViewer'
 import CommentList from './CommentList'
 import './globals.css'
 
+type Comment = { text: string; pageNumber: number; content: string }
+
+const STORAGE_KEY = 'pdfComments'
+
+// Read saved comments synchronously during the first render. Loading them in a
+// separate effect let the save effect overwrite storage with [] first, which
+// wiped comments under React.StrictMode's double-invoked effects (#37).
+function loadComments(): Comment[] {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    const parsed = saved ? JSON.parse(saved) : []
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
 export default function App() {
   const [pdfFile, setPdfFile] = useState<File | null>(null)
-  const [comments, setComments] = useState<Array<{ text: string; pageNumber: number; content: string }>>([])
+  const [comments, setComments] = useState<Comment[]>(loadComments)
   const [selectedText, setSelectedText] = useState<{
     text: string;
     pageNumber: number;
@@ -16,14 +33,7 @@ export default function App() {
   } | null>(null)
 
   useEffect(() => {
-    const savedComments = localStorage.getItem('pdfComments')
-    if (savedComments) {
-      setComments(JSON.parse(savedComments))
-    }
-  }, [])
-
-  useEffect(() => {
-    localStorage.setItem('pdfComments', JSON.stringify(comments))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(comments))
   }, [comments])
 
   const handlePdfUpload = (file: File) => {
@@ -35,11 +45,14 @@ export default function App() {
     setSelectedText({ text: cleanText, pageNumber, position });
   }, []);
 
-  const handleCommentSave = (comment: string) => {
-    if (selectedText) {
-      setComments([...comments, { ...selectedText, content: comment }])
-      setSelectedText(null)
+  const handleCommentSave = (comment: string): boolean => {
+    if (!selectedText || comment.trim() === '') {
+      return false
     }
+    const { text, pageNumber } = selectedText
+    setComments((prev) => [...prev, { text, pageNumber, content: comment }])
+    setSelectedText(null)
+    return true
   }
 
   const handleClear = () => {
@@ -47,7 +60,7 @@ export default function App() {
   };
 
   const handleDeleteComment = (index: number) => {
-    setComments(comments.filter((_, i) => i !== index));
+    setComments((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (

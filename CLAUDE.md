@@ -29,7 +29,9 @@ PDF をレビューし、選択したテキストにコメントを付けるた�
 
 - `pdfFile` — アップロードされた `File`。null の間は `PDFUploader` を表示し、設定されると 2 ペインのビューア/コメントレイアウトを描画します。
 - `selectedText` — 現在ハイライトされている PDF テキストの `{ text, pageNumber, position }`。PDF 上の mouseup で設定され、コメント保存時にクリアされます。
-- `comments` — `{ text, pageNumber, content }` の配列。変更のたびに走る `useEffect` で `localStorage` のキー `pdfComments` に永続化され、マウント時に復元されます。
+- `comments` — `{ text, pageNumber, content }` の配列。`useState` の遅延初期化（`loadComments`）で `localStorage` のキー `pdfComments` から復元し、変更のたびに走る `useEffect` で保存します。**復元を別の `useEffect` に分けないでください**（StrictMode の effect 二重実行で保存側が先に `[]` を書き込み、コメントが消えます）。
+
+コメントの保存（`handleCommentSave`）は、選択テキストがない場合や本文が空の場合に `false` を返します。`CommentUI` は `true` が返ったときだけ textarea を空にします。
 
 レイアウト: 左 2/3 ペインが `PDFViewer`、右 1/3 ペインが `CommentList`。
 
@@ -37,8 +39,8 @@ PDF をレビューし、選択したテキストにコメントを付けるた�
 
 - `PDFViewer.tsx` — `react-pdf`（`Document`/`Page`）で 1 ページずつ描画します。テキスト選択は `onMouseUp` → `window.getSelection()` → `onTextSelection` コールバックで `App` へ伝播します。ページナビゲーション状態（`pageNumber`, `numPages`）と ArrowLeft/ArrowRight によるページ送りを保持します。**textarea にフォーカスがある場合はキーボードのページ送りを意図的に無効化**しています（コメント入力中にページが切り替わらないようにするため）。ナビゲーション UI として `PDFPagination` を描画します。
 - `components/PDFPagination.tsx` — Previous/Next ボタンと「ページジャンプ」入力フォーム。
-- `CommentList.tsx` — すべてのコメントを描画します。**コメントは個別の React 要素ではなく、1 本の Markdown 文字列として** `ReactMarkdown` に渡されます。各コメントは `## 見出し (p.N)` ブロックと `[Delete](#index)` リンクになり、リンクの `href` の index をカスタム `a` レンダラーで解析して `onDeleteComment` を呼びます。文字列は 2 種類生成されます: `renderComments`（Delete リンク付き・表示用）と `renderCommentsForCopy`（リンクなし・「Copy All」でのクリップボードコピー用）。**Page Offset** コントロールもここが持ちます: 各コメントの `pageNumber` から差し引くローカルな数値で、表示/コピーされるページ参照を文書の印刷上のページ番号に合わせます。
-- `CommentUI.tsx` — コメント用 textarea と Save/Clear ボタン。
+- `CommentList.tsx` — すべてのコメントを描画します。各コメントは個別の React 要素（`<li>`）で、見出し（選択テキスト + `(p.N)`）はプレーンテキスト、本文（`content`）だけを `ReactMarkdown` で描画し、Delete は通常の `<button>` です（本文中のリンクは普通のリンクとして描画されます）。「Copy All」用には `## 見出し (p.N)` 形式の Markdown 文字列（`renderCommentsForCopy`）を生成してクリップボードにコピーします。**Page Offset** コントロールもここが持ちます: 各コメントの `pageNumber` から差し引くローカルな数値で、表示/コピーされるページ参照を文書の印刷上のページ番号に合わせます。
+- `CommentUI.tsx` — コメント用 textarea と Save/Clear ボタン。選択テキストがない間、または本文が空の間は Save が無効になります。
 - `PDFUploader.tsx` — `react-dropzone` によるドラッグ&ドロップ / ファイル選択。
 
 ### 注意すべき点
