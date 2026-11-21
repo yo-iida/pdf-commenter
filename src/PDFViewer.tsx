@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { Document, Page, pdfjs } from 'react-pdf'
-import 'react-pdf/dist/esm/Page/TextLayer.css'
-import 'react-pdf/dist/esm/Page/AnnotationLayer.css'
+import 'react-pdf/dist/Page/TextLayer.css'
+import 'react-pdf/dist/Page/AnnotationLayer.css'
 import { PDFPagination } from './components/PDFPagination'
 import type { TextSelectionHandler } from './types'
 // Bundle the worker from the installed pdfjs-dist so its version always matches the
@@ -110,7 +110,11 @@ const PDFViewer = React.memo(({ file, onTextSelection }: PDFViewerProps) => {
       {/* scrollbar-gutter keeps the width stable when a vertical scrollbar appears,
           so fitting the page to the width cannot oscillate. */}
       <div ref={pageContainerRef} style={{ flex: 1, overflow: 'auto', scrollbarGutter: 'stable' }}>
+        {/* react-pdf 11 suspends by default; with the lazy-loaded viewer's Suspense
+            boundary that would swap the whole viewer for a fallback on every page
+            change, so keep the pre-11 in-place loading behaviour. */}
         <Document
+          suspense={false}
           file={pdfUrl}
           onLoadSuccess={onDocumentLoadSuccess}
           onLoadError={(error) => console.error('Failed to load PDF:', error)}
