@@ -27,7 +27,7 @@ PDF をレビューし、選択したテキストにコメントを付けるた�
 
 状態は 2 層に分かれています。
 
-- `App.tsx` — `pdfFile`（開いている `File`）だけを持ちます。null の間は `PDFUploader` を表示し、設定されると `ReviewWorkspace` を描画します。`ReviewWorkspace` には `key={documentKey(pdfFile)}` を渡しているので、別の PDF を開くとコンポーネントごと作り直され、その PDF の状態が読み込み直されます。
+- `App.tsx` — `pdfFile`（開いている `File`）だけを持ちます。`ReviewWorkspace` と、その中の `PDFViewer` は `React.lazy` で遅延読み込みしています（react-pdf / pdf.js / react-markdown をアップロード画面の初期バンドルから外すため）。アップロード画面の表示から約 1 秒後に両方のチャンクを先読みします（`prefetchReviewScreen`）。null の間は `PDFUploader` を表示し、設定されると `ReviewWorkspace` を描画します。`ReviewWorkspace` には `key={documentKey(pdfFile)}` を渡しているので、別の PDF を開くとコンポーネントごと作り直され、その PDF の状態が読み込み直されます。
 - `ReviewWorkspace.tsx` — 1 つの PDF のレビュー画面で、その PDF の状態の信頼できる情報源（single source of truth）です。
   - `comments` — `{ text, pageNumber, content }` の配列
   - `pageOffset` — 表示/コピーするページ番号から差し引く数値

@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
-import PDFViewer from './PDFViewer'
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
 import CommentList from './CommentList'
 import type { Comment, SelectedText, TextSelectionHandler } from './types'
 import {
@@ -8,6 +7,10 @@ import {
   loadLegacyComments,
   clearLegacyComments,
 } from './storage'
+
+// react-pdf / pdf.js make up most of the bundle and are only needed once a PDF is
+// open, so load the viewer on demand to keep the upload screen light (#48).
+const PDFViewer = lazy(() => import('./PDFViewer'))
 
 interface ReviewWorkspaceProps {
   file: File
@@ -92,7 +95,9 @@ export default function ReviewWorkspace({ file, storageKey, onOpenAnother }: Rev
 
       <div className="flex flex-row flex-1 min-h-0">
         <div className="w-2/3 overflow-auto pr-4 relative" id="pdf-container">
-          <PDFViewer file={file} onTextSelection={handleTextSelection} />
+          <Suspense fallback={<p className="p-4 text-gray-500">Loading PDF viewer…</p>}>
+            <PDFViewer file={file} onTextSelection={handleTextSelection} />
+          </Suspense>
         </div>
         <div className="w-1/3 overflow-auto border-l border-gray-200 pl-4">
           <CommentList
