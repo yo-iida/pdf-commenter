@@ -18,7 +18,7 @@ A React-based web application for reviewing PDF documents and adding comments to
 - React 19
 - TypeScript
 - Vite (build / dev server) and Vitest (tests)
-- Tailwind CSS
+- Tailwind CSS 4
 - react-pdf for PDF rendering
 - react-dropzone for file uploads
 - react-markdown for comment formatting

@@ -1,3 +1,28 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities; 
+@import "tailwindcss";
+
+/*
+  Tailwind 3 compatibility: keep the defaults this UI was designed with.
+  https://tailwindcss.com/docs/upgrade-guide#changes-from-v3
+*/
+@layer base {
+  /* v4 defaults borders to currentColor; v3 used gray-200. */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  /* v4 uses the default cursor for buttons; v3 used a pointer. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /* v4 placeholders are 50% of the text color; v3 used gray-400. */
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-gray-400);
+  }
+}

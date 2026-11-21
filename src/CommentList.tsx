@@ -56,7 +56,7 @@ ${comment.content}`).join('\n\n')
           id="pageOffset"
           value={offsetDraft}
           onChange={(e) => handleOffsetChange(e.target.value)}
-          className="mt-1 block w-24 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-24 rounded-md border-gray-300 shadow-xs focus:border-blue-500 focus:ring-blue-500"
         />
       </div>
       <h2 className="text-xl font-bold mb-4">Comments</h2>

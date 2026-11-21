@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## コマンド
 
-Vite ベースのプロジェクトです（旧 Create React App から移行済み）。`"type": "module"` のため設定ファイルは `.cjs` 拡張子を使います（`postcss.config.cjs`, `tailwind.config.cjs`）。
+Vite ベースのプロジェクトです（旧 Create React App から移行済み）。`package.json` は `"type": "module"` です。
 
 - `npm run dev`（= `npm start`）— 開発サーバーを http://localhost:3000 で起動
 - `npm run build` — `tsc --noEmit` で型チェック後、Vite で `dist/` へ本番ビルド
@@ -55,6 +55,6 @@ PDF をレビューし、選択したテキストにコメントを付けるた�
 - `react-pdf` の pdf.js ワーカーは、`PDFViewer.tsx` で `pdfjs-dist/build/pdf.worker.min.mjs?url` を import して Vite で同梱しています（`react-pdf` が依存する `pdfjs-dist` を使うため、API とワーカーのバージョンが常に一致します。pdf.js はバージョンが違うと PDF の読み込みを拒否します）。cMaps は `pdfjs.version` から組み立てた unpkg CDN の URL から読み込みます。ワーカーの URL をハードコードしないでください。
 - `react-pdf` 11 は既定で Suspense を使います（`Document`/`Page` が読み込み中に中断する）。`PDFViewer` は遅延読み込みの Suspense 境界の内側にあるため、そのままだとページ送りのたびにビューア全体が「Loading PDF viewer…」に置き換わります。これを避けるため `Document` に `suspense={false}` を指定しています。react-pdf 11 の対応ブラウザは Chrome 125 / Safari 18 以上です。
 - 共有する型（`Comment`・`SelectedText`・`TextSelectionHandler`）は `src/types.ts` にまとめています。コンポーネント間で受け渡す型はここに追加し、各ファイルにインラインで重複定義しないでください。
-- スタイリングは Tailwind（`tailwind.config.cjs`、`postcss.config.cjs` で処理）。グローバルスタイルは `src/globals.css` と `src/index.css`。
+- スタイリングは Tailwind CSS 4。`vite.config.ts` の `@tailwindcss/vite` プラグインで処理し、設定ファイル（`tailwind.config.*`/`postcss.config.*`）はありません。`src/globals.css` の `@import "tailwindcss";` がエントリで、v3 の見た目を保つための互換スタイル（border の既定色 gray-200、ボタンの pointer カーソル、placeholder の色）を `@layer base` に置いています。v4 では `shadow-sm` が v3 の `shadow` に相当するなどクラス名の値がずれているので注意してください（v3 の `shadow-sm` は v4 の `shadow-xs`）。グローバルスタイルは `src/globals.css` と `src/index.css`。
 - エントリは Vite 規約に従いリポジトリルートの `index.html`（`<script type="module" src="/src/index.tsx">`）。`public/` 配下の静的ファイルはルート（`/favicon.ico` 等）から配信されます。
 - テストは Vitest + jsdom。グローバル API（`test`/`expect`）は `vite.config.ts` の `test.globals: true` と `tsconfig.json` の `types: ["vitest/globals", ...]` で有効化。セットアップは `src/setupTests.ts`（`@testing-library/jest-dom/vitest`）。`App.test.tsx` は `vi.mock('./PDFViewer')` で `react-pdf`/`canvas` への依存を外し、テキスト選択をスタブのボタンで再現しています。`PDFViewer.test.tsx` は `vi.mock('react-pdf')` で `Document`/`Page` をスタブにし、jsdom にないレイアウト（`clientWidth`）と `URL.createObjectURL` を差し替えてページ送りや選択を検証しています。
