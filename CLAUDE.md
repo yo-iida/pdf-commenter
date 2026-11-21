@@ -15,7 +15,9 @@ Vite ベースのプロジェクトです（旧 Create React App から移行済
 
 独立した lint コマンドはありません（CRA の ESLint 統合は移行時に外しています）。型チェックは `tsc --noEmit`（`npm run build` に内包）で行います。
 
-デプロイは Vercel。`vercel.json` で `framework: vite` / `outputDirectory: dist` を固定しています。
+デプロイは Vercel。`vercel.json` で `framework: vite` / `outputDirectory: dist` を固定しています。Node.js のバージョンは `package.json` の `engines.node`（24.x）で指定しており、Vercel のプロジェクト設定より優先されます。
+
+CI は GitHub Actions（`.github/workflows/ci.yml`）。main への push と PR で `tsc --noEmit` → `vitest run` → `vite build` を実行します（Node は `engines.node` に合わせます）。Vercel のビルドではテストは実行されません。
 
 ## アーキテクチャ
 
