@@ -10,7 +10,9 @@ interface Comment {
 
 interface CommentListProps {
   comments: Comment[]
-  pageOffset?: number
+  /** Subtracted from each comment's page number to match the document's printed page numbers. */
+  pageOffset: number
+  onPageOffsetChange: (offset: number) => void
   selectedText: {
     text: string;
     pageNumber: number;
@@ -21,11 +23,20 @@ interface CommentListProps {
   onDeleteComment: (index: number) => void;
 }
 
-export default function CommentList({ comments, pageOffset = 0, selectedText, onSave, onClear, onDeleteComment }: CommentListProps) {
+export default function CommentList({ comments, pageOffset, onPageOffsetChange, selectedText, onSave, onClear, onDeleteComment }: CommentListProps) {
   const [copied, setCopied] = useState(false)
-  const [localPageOffset, setLocalPageOffset] = useState(pageOffset)
+  // Keep the raw text so partial input like "-" or "" can be typed; only valid numbers are committed.
+  const [offsetDraft, setOffsetDraft] = useState(String(pageOffset))
 
-  const pageLabel = (comment: Comment) => `p.${comment.pageNumber - localPageOffset}`
+  const handleOffsetChange = (value: string) => {
+    setOffsetDraft(value)
+    const n = Number(value)
+    if (value.trim() !== '' && Number.isFinite(n)) {
+      onPageOffsetChange(n)
+    }
+  }
+
+  const pageLabel = (comment: Comment) => `p.${comment.pageNumber - pageOffset}`
 
   // Markdown export for "Copy All". The on-screen list is rendered as React
   // elements below, so Markdown in a comment cannot turn into a Delete button (#38).
@@ -50,8 +61,8 @@ ${comment.content}`).join('\n\n')
         <input
           type="number"
           id="pageOffset"
-          value={localPageOffset}
-          onChange={(e) => setLocalPageOffset(Number(e.target.value))}
+          value={offsetDraft}
+          onChange={(e) => handleOffsetChange(e.target.value)}
           className="mt-1 block w-24 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         />
       </div>

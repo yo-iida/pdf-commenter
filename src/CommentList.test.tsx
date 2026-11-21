@@ -1,11 +1,20 @@
+import { useState, type ComponentProps } from 'react'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import CommentList from './CommentList'
 
 const baseProps = {
   selectedText: null,
+  pageOffset: 0,
+  onPageOffsetChange: () => {},
   onSave: () => true,
   onClear: () => {},
+}
+
+// CommentList's page offset is controlled by the parent; hold it in state here.
+function WithOffsetState(props: Omit<ComponentProps<typeof CommentList>, 'pageOffset' | 'onPageOffsetChange'>) {
+  const [pageOffset, setPageOffset] = useState(0)
+  return <CommentList {...props} pageOffset={pageOffset} onPageOffsetChange={setPageOffset} />
 }
 
 describe('CommentList', () => {
@@ -66,8 +75,10 @@ describe('CommentList', () => {
     const user = userEvent.setup()
     const writeText = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue()
     render(
-      <CommentList
-        {...baseProps}
+      <WithOffsetState
+        selectedText={null}
+        onSave={() => true}
+        onClear={() => {}}
         onDeleteComment={() => {}}
         comments={[
           { text: 'Intro', pageNumber: 5, content: 'fix typo' },
@@ -83,5 +94,22 @@ describe('CommentList', () => {
 
     expect(writeText).toHaveBeenCalledWith('## Intro (p.3)\n\nfix typo\n\n## Body (p.5)\n\nclarify')
     expect(screen.getByRole('heading', { name: 'Intro (p.3)' })).toBeInTheDocument()
+  })
+
+  test('accepts a negative page offset typed from "-"', async () => {
+    const onPageOffsetChange = vi.fn()
+    render(
+      <CommentList
+        {...baseProps}
+        onPageOffsetChange={onPageOffsetChange}
+        onDeleteComment={() => {}}
+        comments={[]}
+      />
+    )
+
+    const offset = screen.getByLabelText('Page Offset:')
+    await userEvent.clear(offset)
+    await userEvent.type(offset, '-3')
+    expect(onPageOffsetChange).toHaveBeenLastCalledWith(-3)
   })
 })
