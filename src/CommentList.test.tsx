@@ -112,4 +112,52 @@ describe('CommentList', () => {
     await userEvent.type(offset, '-3')
     expect(onPageOffsetChange).toHaveBeenLastCalledWith(-3)
   })
+
+  describe('Clear All (#39)', () => {
+    const two = [
+      { text: 'First', pageNumber: 1, content: 'a' },
+      { text: 'Second', pageNumber: 2, content: 'b' },
+    ]
+
+    test('asks for confirmation before clearing', async () => {
+      const onClear = vi.fn()
+      render(<CommentList {...baseProps} onClear={onClear} onDeleteComment={() => {}} comments={two} />)
+
+      await userEvent.click(screen.getByRole('button', { name: 'Clear All' }))
+      expect(onClear).not.toHaveBeenCalled()
+      const dialog = screen.getByRole('alertdialog')
+      expect(dialog).toHaveTextContent('Delete all 2 comments for this PDF?')
+      expect(within(dialog).getByRole('button', { name: 'Cancel' })).toHaveFocus()
+
+      await userEvent.click(within(dialog).getByRole('button', { name: 'Delete all' }))
+      expect(onClear).toHaveBeenCalledTimes(1)
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    })
+
+    test('Cancel keeps the comments', async () => {
+      const onClear = vi.fn()
+      render(<CommentList {...baseProps} onClear={onClear} onDeleteComment={() => {}} comments={two} />)
+
+      await userEvent.click(screen.getByRole('button', { name: 'Clear All' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+      expect(onClear).not.toHaveBeenCalled()
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+      expect(screen.getAllByTestId('comment')).toHaveLength(2)
+    })
+
+    test('Enter right after opening the confirmation does not delete', async () => {
+      const onClear = vi.fn()
+      render(<CommentList {...baseProps} onClear={onClear} onDeleteComment={() => {}} comments={two} />)
+
+      await userEvent.click(screen.getByRole('button', { name: 'Clear All' }))
+      await userEvent.keyboard('{Enter}')
+      expect(onClear).not.toHaveBeenCalled()
+    })
+
+    test('is disabled when there are no comments', () => {
+      render(<CommentList {...baseProps} onDeleteComment={() => {}} comments={[]} />)
+      expect(screen.getByRole('button', { name: 'Clear All' })).toBeDisabled()
+    })
+  })
 })

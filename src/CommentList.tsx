@@ -16,6 +16,8 @@ interface CommentListProps {
 
 export default function CommentList({ comments, pageOffset, onPageOffsetChange, selectedText, onSave, onClear, onDeleteComment }: CommentListProps) {
   const [copied, setCopied] = useState(false)
+  // Clear All asks for confirmation in place before deleting every comment (#39).
+  const [confirmingClear, setConfirmingClear] = useState(false)
   // Keep the raw text so partial input like "-" or "" can be typed; only valid numbers are committed.
   const [offsetDraft, setOffsetDraft] = useState(String(pageOffset))
 
@@ -62,10 +64,39 @@ ${comment.content}`).join('\n\n')
         <button onClick={handleCopyAll} className="bg-blue-500 text-white px-4 py-2 rounded">
           {copied ? 'Copied!' : 'Copy All'}
         </button>
-        <button onClick={onClear} className="bg-red-500 text-white px-4 py-2 rounded">
+        <button
+          onClick={() => setConfirmingClear(true)}
+          disabled={comments.length === 0 || confirmingClear}
+          className="bg-red-500 text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           Clear All
         </button>
       </div>
+      {confirmingClear && comments.length > 0 && (
+        <div role="alertdialog" aria-label="Confirm clearing all comments" className="mb-4 p-3 rounded border border-red-300 bg-red-50 text-sm">
+          <p className="mb-2">
+            Delete all {comments.length} comment{comments.length === 1 ? '' : 's'} for this PDF? This cannot be undone.
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                onClear()
+                setConfirmingClear(false)
+              }}
+              className="bg-red-600 text-white px-3 py-1 rounded"
+            >
+              Delete all
+            </button>
+            <button
+              autoFocus
+              onClick={() => setConfirmingClear(false)}
+              className="px-3 py-1 rounded border border-gray-300 bg-white"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
       <ul className="markdown-preview">
         {comments.map((comment, index) => (
           <li key={index} data-testid="comment">
