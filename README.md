@@ -9,14 +9,15 @@ A React-based web application for reviewing PDF documents and adding comments to
 - Text selection and commenting functionality
 - Markdown support for comments
 - Comment export functionality
-- Local storage persistence for comments
-- Page offset adjustment for reference numbering
+- Local storage persistence for comments, saved separately for each PDF
+- Page offset adjustment for reference numbering (remembered per PDF)
 - Responsive layout design
 
 ## Tech Stack
 
 - React 18
 - TypeScript
+- Vite (build / dev server) and Vitest (tests)
 - Tailwind CSS
 - react-pdf for PDF rendering
 - react-dropzone for file uploads
@@ -27,31 +28,27 @@ A React-based web application for reviewing PDF documents and adding comments to
 
 ### Prerequisites
 
-- Node.js (v14 or higher)
-- npm or yarn
+- Node.js 24.x (see `engines` in `package.json`)
+- npm
 
 ### Installation
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/pdf-commenter.git
+   git clone https://github.com/yo-iida/pdf-commenter.git
    cd pdf-commenter
    ```
 
 2. Install dependencies:
    ```bash
    npm install
-   # or
-   yarn install
    ```
 
 ### Running the Application
 
 1. Start the development server:
    ```bash
-   npm start
-   # or
-   yarn start
+   npm run dev
    ```
 
 2. Open your browser and navigate to:
@@ -61,13 +58,18 @@ A React-based web application for reviewing PDF documents and adding comments to
 
 The application will automatically reload if you make changes to the code.
 
-### Building for Production
+### Testing
 
-To create a production build:
 ```bash
-npm run build
-# or
-yarn build
+npm test          # watch mode
+npx vitest run    # single run (what CI runs)
 ```
 
-The build artifacts will be stored in the `build/` directory.
+### Building for Production
+
+To type-check and create a production build:
+```bash
+npm run build
+```
+
+The build artifacts will be stored in the `dist/` directory. Preview them locally with `npm run preview`.

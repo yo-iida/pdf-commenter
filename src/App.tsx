@@ -1,5 +1,3 @@
-'use client'
-
 import { useState } from 'react'
 import PDFUploader from './PDFUploader'
 import ReviewWorkspace from './ReviewWorkspace'
