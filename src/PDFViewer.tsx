@@ -53,9 +53,11 @@ const PDFViewer = React.memo(({ file, onTextSelection }: PDFViewerProps) => {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      const activeElement = document.activeElement;
-      if (activeElement && activeElement.tagName.toLowerCase() === 'textarea') {
-        return; // Do nothing if a textarea is focused
+      // Arrow keys move the caret while typing (comment textarea, page jump and
+      // page offset inputs), so don't turn pages then.
+      const active = document.activeElement as HTMLElement | null
+      if (active && (active.matches('textarea, input, select') || active.isContentEditable)) {
+        return
       }
 
       if (event.key === 'ArrowRight') {

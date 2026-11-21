@@ -44,7 +44,7 @@ PDF をレビューし、選択したテキストにコメントを付けるた�
 
 ### コンポーネント
 
-- `PDFViewer.tsx` — `react-pdf`（`Document`/`Page`）で 1 ページずつ描画します。テキスト選択は `onMouseUp` → `window.getSelection()` → `onTextSelection` コールバックで `ReviewWorkspace` へ伝播します。ページナビゲーション状態（`pageNumber`, `numPages`）と ArrowLeft/ArrowRight によるページ送りを保持します。**textarea にフォーカスがある場合はキーボードのページ送りを意図的に無効化**しています（コメント入力中にページが切り替わらないようにするため）。ナビゲーション UI として `PDFPagination` を描画します。
+- `PDFViewer.tsx` — `react-pdf`（`Document`/`Page`）で 1 ページずつ描画します。テキスト選択は `onMouseUp` → `window.getSelection()` → `onTextSelection` コールバックで `ReviewWorkspace` へ伝播します。ページナビゲーション状態（`pageNumber`, `numPages`）と ArrowLeft/ArrowRight によるページ送りを保持します。**textarea・input・select・contenteditable にフォーカスがある間はキーボードのページ送りを意図的に無効化**しています（コメント入力やページジャンプ/Page Offset の入力中に、カーソル移動でページが切り替わらないようにするため）。ナビゲーション UI として `PDFPagination` を描画します。
 - `components/PDFPagination.tsx` — Previous/Next ボタンと「ページジャンプ」入力フォーム。
 - `CommentList.tsx` — すべてのコメントを描画します。各コメントは個別の React 要素（`<li>`）で、見出し（選択テキスト + `(p.N)`）はプレーンテキスト、本文（`content`）だけを `ReactMarkdown` で描画し、Delete は通常の `<button>` です（本文中のリンクは普通のリンクとして描画されます）。「Copy All」用には `## 見出し (p.N)` 形式の Markdown 文字列（`renderCommentsForCopy`）を生成してクリップボードにコピーします。**Page Offset** の入力欄もここにあります（値は `ReviewWorkspace` が持つ制御された props で、入力途中の `-` などを扱うため入力文字列は内部の下書き state に保持します）。各コメントの `pageNumber` から差し引き、表示/コピーされるページ参照を文書の印刷上のページ番号に合わせます。
 - `CommentUI.tsx` — コメント用 textarea と Save/Clear ボタン。選択テキストがない間、または本文が空の間は Save が無効になります。
@@ -56,4 +56,4 @@ PDF をレビューし、選択したテキストにコメントを付けるた�
 - 共有する型（`Comment`・`SelectedText`・`TextSelectionHandler`）は `src/types.ts` にまとめています。コンポーネント間で受け渡す型はここに追加し、各ファイルにインラインで重複定義しないでください。
 - スタイリングは Tailwind（`tailwind.config.cjs`、`postcss.config.cjs` で処理）。グローバルスタイルは `src/globals.css` と `src/index.css`。
 - エントリは Vite 規約に従いリポジトリルートの `index.html`（`<script type="module" src="/src/index.tsx">`）。`public/` 配下の静的ファイルはルート（`/favicon.ico` 等）から配信されます。
-- テストは Vitest + jsdom。グローバル API（`test`/`expect`）は `vite.config.ts` の `test.globals: true` と `tsconfig.json` の `types: ["vitest/globals", ...]` で有効化。セットアップは `src/setupTests.ts`（`@testing-library/jest-dom/vitest`）。`App.test.tsx` は `vi.mock('./PDFViewer')` で `react-pdf`/`canvas` への依存を外し、テキスト選択をスタブのボタンで再現しています。
+- テストは Vitest + jsdom。グローバル API（`test`/`expect`）は `vite.config.ts` の `test.globals: true` と `tsconfig.json` の `types: ["vitest/globals", ...]` で有効化。セットアップは `src/setupTests.ts`（`@testing-library/jest-dom/vitest`）。`App.test.tsx` は `vi.mock('./PDFViewer')` で `react-pdf`/`canvas` への依存を外し、テキスト選択をスタブのボタンで再現しています。`PDFViewer.test.tsx` は `vi.mock('react-pdf')` で `Document`/`Page` をスタブにし、jsdom にないレイアウト（`clientWidth`）と `URL.createObjectURL` を差し替えてページ送りや選択を検証しています。
