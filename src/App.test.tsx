@@ -23,6 +23,8 @@ beforeEach(() => {
 async function openPdf(file: File) {
   const input = document.querySelector('input[type=file]') as HTMLInputElement
   await userEvent.upload(input, file)
+  // PDFViewer is lazy-loaded; wait for the (mocked) viewer to appear.
+  await screen.findByRole('button', { name: 'select text' })
 }
 
 async function addComment(content: string) {
