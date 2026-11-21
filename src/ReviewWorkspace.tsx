@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import PDFViewer from './PDFViewer'
 import CommentList from './CommentList'
+import type { Comment, SelectedText, TextSelectionHandler } from './types'
 import {
-  type Comment,
   loadDocument,
   saveDocument,
   loadLegacyComments,
@@ -14,12 +14,6 @@ interface ReviewWorkspaceProps {
   /** Storage key for this PDF; the parent also uses it as the React key so switching PDFs remounts. */
   storageKey: string
   onOpenAnother: () => void
-}
-
-type SelectedText = {
-  text: string
-  pageNumber: number
-  position?: { x: number; y: number }
 }
 
 export default function ReviewWorkspace({ file, storageKey, onOpenAnother }: ReviewWorkspaceProps) {
@@ -35,9 +29,9 @@ export default function ReviewWorkspace({ file, storageKey, onOpenAnother }: Rev
     saveDocument(storageKey, { comments, pageOffset })
   }, [storageKey, comments, pageOffset])
 
-  const handleTextSelection = useCallback((text: string, pageNumber: number, position: { x: number; y: number }) => {
+  const handleTextSelection = useCallback<TextSelectionHandler>((text, pageNumber) => {
     const cleanText = text.replace(/\n/g, ' ').trim()
-    setSelectedText({ text: cleanText, pageNumber, position })
+    setSelectedText({ text: cleanText, pageNumber })
   }, [])
 
   const handleCommentSave = (comment: string): boolean => {

@@ -3,12 +3,13 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from './App'
 import { documentKey, LEGACY_KEY } from './storage'
+import type { TextSelectionHandler } from './types'
 
 // PDFViewer depends on react-pdf/canvas; replace it with a stub that can
 // simulate a text selection.
 vi.mock('./PDFViewer', () => ({
-  default: ({ onTextSelection }: { onTextSelection: (text: string, page: number, pos: { x: number; y: number }) => void }) => (
-    <button onClick={() => onTextSelection('Selected\nsentence', 5, { x: 0, y: 0 })}>select text</button>
+  default: ({ onTextSelection }: { onTextSelection: TextSelectionHandler }) => (
+    <button onClick={() => onTextSelection('Selected\nsentence', 5)}>select text</button>
   ),
 }))
 

@@ -3,6 +3,7 @@ import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/esm/Page/TextLayer.css'
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css'
 import { PDFPagination } from './components/PDFPagination'
+import type { TextSelectionHandler } from './types'
 // Bundle the worker from the installed pdfjs-dist so its version always matches the
 // API version used by react-pdf (pdf.js refuses to load documents on a mismatch).
 import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
@@ -16,7 +17,7 @@ const documentOptions = {
 
 interface PDFViewerProps {
   file: File
-  onTextSelection: (text: string, pageNumber: number, position: { x: number; y: number }) => void
+  onTextSelection: TextSelectionHandler
 }
 
 const PDFViewer = React.memo(({ file, onTextSelection }: PDFViewerProps) => {
@@ -40,7 +41,7 @@ const PDFViewer = React.memo(({ file, onTextSelection }: PDFViewerProps) => {
   function handleTextSelection() {
     const selection = window.getSelection()
     if (selection && selection.toString().trim() !== '') {
-      onTextSelection(selection.toString(), pageNumber, { x: 0, y: 0 })
+      onTextSelection(selection.toString(), pageNumber)
     }
   }
 
