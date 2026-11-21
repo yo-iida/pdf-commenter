@@ -31,7 +31,7 @@ PDF をレビューし、選択したテキストにコメントを付けるた�
 - `ReviewWorkspace.tsx` — 1 つの PDF のレビュー画面で、その PDF の状態の信頼できる情報源（single source of truth）です。
   - `comments` — `{ text, pageNumber, content }` の配列
   - `pageOffset` — 表示/コピーするページ番号から差し引く数値
-  - `selectedText` — 現在選択されている PDF テキスト `{ text, pageNumber, position }`。PDF 上の mouseup で設定され、コメント保存時にクリアされます
+  - `selectedText` — 現在選択されている PDF テキスト `{ text, pageNumber }`。PDF 上の mouseup で設定され、コメント保存時にクリアされます
   - `legacyComments` — PDF ごとの保存に移行する前の旧データ（下記）
 
 **永続化（`src/storage.ts`）**: `comments` と `pageOffset` は PDF ごとに `localStorage` のキー `pdfReview:<ファイル名>:<サイズ>:<lastModified>`（`documentKey`）へ `{ comments, pageOffset }` として保存されます。`useState` の遅延初期化で復元し、変更のたびに走る `useEffect` で保存します。**復元を別の `useEffect` に分けないでください**（StrictMode の effect 二重実行で保存側が先に空の状態を書き込み、データが消えます）。空になったドキュメントのキーは削除されます。
@@ -53,7 +53,7 @@ PDF をレビューし、選択したテキストにコメントを付けるた�
 ### 注意すべき点
 
 - `react-pdf` の pdf.js ワーカーは、`PDFViewer.tsx` で `pdfjs-dist/build/pdf.worker.min.mjs?url` を import して Vite で同梱しています（`react-pdf` が依存する `pdfjs-dist` を使うため、API とワーカーのバージョンが常に一致します。pdf.js はバージョンが違うと PDF の読み込みを拒否します）。cMaps は `pdfjs.version` から組み立てた unpkg CDN の URL から読み込みます。ワーカーの URL をハードコードしないでください。
-- コメント/ページの型（`{ text, pageNumber, content }` および `selectedText` の形）は、共通モジュールから共有されず、`storage.ts`（`Comment`）のほか、`ReviewWorkspace.tsx`・`CommentList.tsx`・`PDFViewer.tsx` にインラインの interface として重複定義されています。
+- 共有する型（`Comment`・`SelectedText`・`TextSelectionHandler`）は `src/types.ts` にまとめています。コンポーネント間で受け渡す型はここに追加し、各ファイルにインラインで重複定義しないでください。
 - スタイリングは Tailwind（`tailwind.config.cjs`、`postcss.config.cjs` で処理）。グローバルスタイルは `src/globals.css` と `src/index.css`。
 - エントリは Vite 規約に従いリポジトリルートの `index.html`（`<script type="module" src="/src/index.tsx">`）。`public/` 配下の静的ファイルはルート（`/favicon.ico` 等）から配信されます。
 - テストは Vitest + jsdom。グローバル API（`test`/`expect`）は `vite.config.ts` の `test.globals: true` と `tsconfig.json` の `types: ["vitest/globals", ...]` で有効化。セットアップは `src/setupTests.ts`（`@testing-library/jest-dom/vitest`）。`App.test.tsx` は `vi.mock('./PDFViewer')` で `react-pdf`/`canvas` への依存を外し、テキスト選択をスタブのボタンで再現しています。

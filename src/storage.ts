@@ -1,4 +1,4 @@
-export type Comment = { text: string; pageNumber: number; content: string }
+import type { Comment } from './types'
 
 export type DocumentData = {
   comments: Comment[]

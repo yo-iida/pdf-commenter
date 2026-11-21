@@ -1,23 +1,14 @@
 import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import CommentUI from './CommentUI'
-
-interface Comment {
-  text: string
-  pageNumber: number
-  content: string
-}
+import type { Comment, SelectedText } from './types'
 
 interface CommentListProps {
   comments: Comment[]
   /** Subtracted from each comment's page number to match the document's printed page numbers. */
   pageOffset: number
   onPageOffsetChange: (offset: number) => void
-  selectedText: {
-    text: string;
-    pageNumber: number;
-    position?: { x: number; y: number };
-  } | null;
+  selectedText: SelectedText | null;
   onSave: (comment: string) => boolean;
   onClear: () => void;
   onDeleteComment: (index: number) => void;
