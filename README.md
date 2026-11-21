@@ -15,7 +15,7 @@ A React-based web application for reviewing PDF documents and adding comments to
 
 ## Tech Stack
 
-- React 18
+- React 19
 - TypeScript
 - Vite (build / dev server) and Vitest (tests)
 - Tailwind CSS
