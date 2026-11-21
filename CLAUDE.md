@@ -15,7 +15,9 @@ Vite ベースのプロジェクトです（旧 Create React App から移行済
 
 独立した lint コマンドはありません（CRA の ESLint 統合は移行時に外しています）。型チェックは `tsc --noEmit`（`npm run build` に内包）で行います。
 
-デプロイは Vercel。`vercel.json` で `framework: vite` / `outputDirectory: dist` を固定しています。
+デプロイは Vercel。`vercel.json` で `framework: vite` / `outputDirectory: dist` を固定しています。Node.js のバージョンは `package.json` の `engines.node`（24.x）で指定しており、Vercel のプロジェクト設定より優先されます。
+
+CI は GitHub Actions（`.github/workflows/ci.yml`）。main への push と PR で `tsc --noEmit` → `vitest run` → `vite build` を実行します（Node は `engines.node` に合わせます）。Vercel のビルドではテストは実行されません。
 
 ## アーキテクチャ
 
@@ -43,7 +45,7 @@ PDF をレビューし、選択したテキストにコメントを付けるた�
 
 ### 注意すべき点
 
-- `react-pdf` の pdf.js ワーカーと cMaps は、`PDFViewer.tsx` 内でハードコードされた unpkg CDN URL（`pdfjs-dist@4.4.168` にピン留め）から読み込まれます。このバージョンはインストール済みの `react-pdf` と互換性を保つ必要があります。
+- `react-pdf` の pdf.js ワーカーは、`PDFViewer.tsx` で `pdfjs-dist/build/pdf.worker.min.mjs?url` を import して Vite で同梱しています（`react-pdf` が依存する `pdfjs-dist` を使うため、API とワーカーのバージョンが常に一致します。pdf.js はバージョンが違うと PDF の読み込みを拒否します）。cMaps は `pdfjs.version` から組み立てた unpkg CDN の URL から読み込みます。ワーカーの URL をハードコードしないでください。
 - コメント/ページの型（`{ text, pageNumber, content }` および `selectedText` の形）は、共通モジュールから共有されず、`App.tsx`・`CommentList.tsx`・`PDFViewer.tsx` にインラインの interface として重複定義されています。
 - スタイリングは Tailwind（`tailwind.config.cjs`、`postcss.config.cjs` で処理）。グローバルスタイルは `src/globals.css` と `src/index.css`。
 - エントリは Vite 規約に従いリポジトリルートの `index.html`（`<script type="module" src="/src/index.tsx">`）。`public/` 配下の静的ファイルはルート（`/favicon.ico` 等）から配信されます。
