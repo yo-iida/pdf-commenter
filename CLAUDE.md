@@ -45,4 +45,4 @@ PDF をレビューし、選択したテキストにコメントを付けるた�
 - コメント/ページの型（`{ text, pageNumber, content }` および `selectedText` の形）は、共通モジュールから共有されず、`App.tsx`・`CommentList.tsx`・`PDFViewer.tsx` にインラインの interface として重複定義されています。
 - スタイリングは Tailwind（`tailwind.config.cjs`、`postcss.config.cjs` で処理）。グローバルスタイルは `src/globals.css` と `src/index.css`。
 - エントリは Vite 規約に従いリポジトリルートの `index.html`（`<script type="module" src="/src/index.tsx">`）。`public/` 配下の静的ファイルはルート（`/favicon.ico` 等）から配信されます。
-- テストは Vitest + jsdom。グローバル API（`test`/`expect`）は `vite.config.ts` の `test.globals: true` と `tsconfig.json` の `types: ["vitest/globals", ...]` で有効化。セットアップは `src/setupTests.ts`（`@testing-library/jest-dom`）。`App.test.tsx` は PDF 未読込の初期画面を検証するため `react-pdf`/`canvas` に依存しません。
+- テストは Vitest + jsdom。グローバル API（`test`/`expect`）は `vite.config.ts` の `test.globals: true` と `tsconfig.json` の `types: ["vitest/globals", ...]` で有効化。セットアップは `src/setupTests.ts`（`@testing-library/jest-dom/vitest`）。`App.test.tsx` は PDF 未読込の初期画面を検証するため `react-pdf`/`canvas` に依存しません。
